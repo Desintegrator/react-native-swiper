@@ -12,7 +12,8 @@ import {
   Dimensions,
   TouchableOpacity,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  RefreshControl
 } from 'react-native'
 
 /**
@@ -284,7 +285,7 @@ export default class extends Component {
     }
 
     initState.offset[initState.dir] =
-      initState.dir === 'y' ? initState.height * props.index : initState.width * props.index
+      initState.dir === 'y' ? height * props.index : width * props.index
 
     this.internals = {
       ...this.internals,
@@ -464,9 +465,11 @@ export default class extends Component {
     if (!this.internals.offset)
       // Android not setting this onLayout first? https://github.com/leecade/react-native-swiper/issues/582
       this.internals.offset = {}
-    const diff = offset[dir] - (this.internals.offset[dir] || 0)
+    const diff = offset[dir] - (this.internals.offset[dir] ? this.internals.offset[dir] : 0)
     const step = dir === 'x' ? state.width : state.height
     let loopJump = false
+
+    // console.log('updateIndex=> newInd ', diff)
 
     // Do nothing if offset no change.
     if (!diff) return
@@ -491,6 +494,8 @@ export default class extends Component {
     const newState = {}
     newState.index = index
     newState.loopJump = loopJump
+
+    // console.log('updateIndex=> update ', index)
 
     this.internals.offset = offset
 
@@ -777,6 +782,8 @@ export default class extends Component {
         onMomentumScrollEnd={this.onScrollEnd}
         onScrollEndDrag={this.onScrollEndDrag}
         style={this.props.scrollViewStyle}
+        refreshControl={this.props.refreshControl || null}
+        bounces={this.state.index === 0}
       >
         {pages}
       </ScrollView>
